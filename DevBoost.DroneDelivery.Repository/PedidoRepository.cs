@@ -16,8 +16,9 @@ namespace DevBoost.DroneDelivery.Repository
 
         public PedidoRepository(DCDroneDelivery context)
         {
-            this._context = context;
+            _context = context;
         }
+        public IUnitOfWork UnitOfWork => _context;
 
         public async Task<bool> Delete(Pedido pedido)
         {
@@ -30,6 +31,7 @@ namespace DevBoost.DroneDelivery.Repository
             return await _context.Pedido
                 .AsNoTracking()
                 .Include(p => p.Drone)
+                .Include(c => c.Cliente)
                 .ToListAsync();
         }
 
@@ -43,10 +45,16 @@ namespace DevBoost.DroneDelivery.Repository
             return await _context.Pedido.FindAsync(id);
         }
 
-        public async Task<bool> Insert(Pedido pedido)
+        public async Task Insert(Pedido pedido)
         {
-            _context.Pedido.Add(pedido);
-            return await _context.SaveChangesAsync() > 0;
+            await Task.Run(() =>
+             {
+                 _context.Attach(pedido);
+                 _context.Pedido.Add(pedido);
+
+             });
+
+
         }
 
         public async Task<Pedido> Update(Pedido pedido)
@@ -55,7 +63,7 @@ namespace DevBoost.DroneDelivery.Repository
             await _context.SaveChangesAsync();
             return pedido;
         }
-                        
+
         public async Task<IList<Pedido>> GetPedidosEmAberto()
         {
             return await _context.Pedido.AsNoTracking().Where(p => p.Status == EnumStatusPedido.AguardandoEntregador).ToListAsync();

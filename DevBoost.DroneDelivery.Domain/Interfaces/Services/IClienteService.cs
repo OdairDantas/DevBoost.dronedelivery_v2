@@ -1,0 +1,16 @@
+﻿using DevBoost.DroneDelivery.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DevBoost.DroneDelivery.Domain.Interfaces.Services
+{
+    public interface IClienteService
+    {
+        Task<IList<Cliente>> GetAll();
+        Task<Cliente> GetById(Guid id);
+        Task<Cliente> GetById(int id);
+        Task Insert(Cliente entity);
+    }
+}

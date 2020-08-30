@@ -13,8 +13,9 @@ namespace DevBoost.DroneDelivery.Domain.Interfaces.Repositories
         Task<DroneItinerario> GetById(int id);
         Task<DroneItinerario> GetDroneItinerarioPorIdDrone(int id);
 
-        Task<bool> Insert(DroneItinerario droneItinerario);
-        Task<DroneItinerario> Update(DroneItinerario droneItinerario);
-        Task<bool> Delete(DroneItinerario droneItinerario);
+        Task Insert(DroneItinerario droneItinerario);
+        Task Update(DroneItinerario droneItinerario);
+        
+        IUnitOfWork UnitOfWork { get; }
     }
 }

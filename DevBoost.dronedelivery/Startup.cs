@@ -37,11 +37,40 @@ namespace DevBoost.dronedelivery
             //services.AddTransient(typeof(IRepository<>), typeof(EFRepository<>));
             //services.AddTransient<IUserService, UserService>();
 
-            services.AddSwaggerGen(c => c.SwaggerDoc(name: "v1", new OpenApiInfo
+            //services.AddSwaggerGen(c => c.SwaggerDoc(name: "v1", new OpenApiInfo
+            //{
+            //    Title = "Drone Delivery",
+            //    Version = "v1",
+            //}));
+
+            services.AddSwaggerGen(c =>
             {
-                Title = "Drone Delivery",
-                Version = "v1",
-            }));
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Drone Delivery",
+                    Version = "v1"
+                });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Por favor, insira JWT no campo",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                   {
+                     new OpenApiSecurityScheme
+                     {
+                       Reference = new OpenApiReference
+                       {
+                         Type = ReferenceType.SecurityScheme,
+                         Id = "Bearer"
+                       }
+                      },
+                      new string[] { }
+                    }
+                  });
+            });
 
             var key = Encoding.ASCII.GetBytes(SecretToken.Key);
 
@@ -64,25 +93,26 @@ namespace DevBoost.dronedelivery
                     ValidateAudience = false
                 };
             });
+            services.AddControllersWithViews().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             //services.AddDbContext<PedidoContext>();
             //services.AddTransient<IUnitOfWork, UnitOfWork>();
             //services.AddTransient(typeof(IRepository<>), typeof(EFRepository<>));
 
-            services.AddTransient<DCDroneDelivery>();
-            services.AddScoped<IPedidoService, PedidoService>();
-            services.AddScoped<IDroneService, DroneService>();
-            services.AddScoped<IDroneItinerarioService, DroneItinerarioService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IDroneItinerarioRepository, DroneItinerarioRepository>();
-            services.AddScoped<IDroneRepository, DroneRepository>();
-            services.AddScoped<IPedidoRepository, PedidoRepository>();            
+            //services.AddTransient<DCDroneDelivery>();
+            services.AddTransient<IPedidoService, PedidoService>();
+            services.AddTransient<IDroneService, DroneService>();
+            services.AddTransient<IDroneItinerarioService, DroneItinerarioService>();
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IDroneItinerarioRepository, DroneItinerarioRepository>();
+            services.AddTransient<IDroneRepository, DroneRepository>();
+            services.AddTransient<IPedidoRepository, PedidoRepository>();
+            services.AddTransient<IClienteRepository, ClienteRepository>();
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IClienteService, ClienteService>();
+            services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 
 
-            services.AddDbContext<DCDroneDelivery>(options =>
-            {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
-                    m => m.MigrationsAssembly("DroneDelivery"));
-            });
+            services.AddDbContext<DCDroneDelivery>();
 
         }
 

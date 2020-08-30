@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 
 namespace DevBoost.DroneDelivery.Application.Services
 {
-    public class UserService : IUserService
+    public class AuthenticationService : IAuthenticationService
     {
+
         private IUsuarioRepository _usuarioRepository;
 
-        public UserService(IUsuarioRepository usuarioRepository)
+        public AuthenticationService(IUsuarioRepository usuarioRepository)
         {
             _usuarioRepository = usuarioRepository;
         }
 
-        public async Task<Usuario> AuthenticateAsync(string username, string password)
+        public async Task<bool> Authenticate(string username, string password)
         {
             var users = await _usuarioRepository.GetAll();
 
-            return users.FirstOrDefault(u => u.Username == username && u.Password == password);
+            return users.Where(u => u.Username == username && u.Password == password).Any();
         }
-
     }
 }

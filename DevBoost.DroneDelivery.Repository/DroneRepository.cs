@@ -12,6 +12,8 @@ namespace DevBoost.DroneDelivery.Repository
     {
         private readonly DCDroneDelivery _context;
 
+        public IUnitOfWork UnitOfWork => _context;
+
         public DroneRepository(DCDroneDelivery context)
         {
             this._context = context;

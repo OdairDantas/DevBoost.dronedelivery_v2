@@ -27,10 +27,7 @@ namespace DevBoost.DroneDelivery.Application.Services
             _droneRepository = droneRepository;
         }
 
-        public async Task<bool> Delete(Pedido pedido)
-        {
-            return await _repositoryPedido.Delete(pedido);
-        }
+
 
         public async Task<IList<Pedido>> GetAll()
         {
@@ -53,17 +50,15 @@ namespace DevBoost.DroneDelivery.Application.Services
             var dronesSitema = await _droneRepository.GetAll();
 
             if (!dronesSitema.Any(d => d.Capacidade >= pedido.Peso))
-                return await Task.Run(() => false);    
-            
+                return await Task.Run(() => false);
+
             //Deve colocar a regra de criação de pedido
 
-            return await _repositoryPedido.Insert(pedido);
+            await _repositoryPedido.Insert(pedido);
+            return await _repositoryPedido.UnitOfWork.Commit();
         }
 
-        public async Task<Pedido> Update(Pedido pedido)
-        {
-            return await _repositoryPedido.Update(pedido);
-        }
+
 
         public async Task DespacharPedidos()
         {
@@ -113,11 +108,13 @@ namespace DevBoost.DroneDelivery.Application.Services
                         {
                             pedido.Status = EnumStatusPedido.Entregue;
                             await _repositoryPedido.Update(pedido);
+                            await _repositoryPedido.UnitOfWork.Commit();
                         }
                     }
                 }
 
                 await _droneItinerarioRepository.Update(droneItinerario);
+                await _droneItinerarioRepository.UnitOfWork.Commit();
             }
 
         }
@@ -179,8 +176,8 @@ namespace DevBoost.DroneDelivery.Application.Services
                     {
                         if (pedidosEntregar.Any())
                         {
-                            latitudeOrigem = (double)pedidosEntregar.Last().Latitude;
-                            longitudeOrigem = (double)pedidosEntregar.Last().Longitude;
+                            latitudeOrigem = (double)pedidosEntregar.Last()?.Cliente.Latitude;
+                            longitudeOrigem = (double)pedidosEntregar.Last()?.Cliente.Longitude;
                         }
                         else
                         {
@@ -188,8 +185,8 @@ namespace DevBoost.DroneDelivery.Application.Services
                             longitudeOrigem = _longitudeLoja;
                         }
 
-                        distanciaTrajeto = calcularDistanciaEmKilometros(latitudeOrigem, longitudeOrigem, (double)pedido.Latitude, (double)pedido.Longitude);
-                        distanciaRetorno = calcularDistanciaEmKilometros((double)pedido.Latitude, (double)pedido.Longitude, _latitudeLoja, _longitudeLoja);
+                        distanciaTrajeto = calcularDistanciaEmKilometros(latitudeOrigem, longitudeOrigem, (double)pedido.Cliente.Longitude, (double)pedido.Cliente.Longitude);
+                        distanciaRetorno = calcularDistanciaEmKilometros((double)pedido.Cliente.Latitude, (double)pedido.Cliente.Longitude, _latitudeLoja, _longitudeLoja);
 
                         distanciaTotal = distanciaPercorrida + distanciaTrajeto + distanciaRetorno;
 
@@ -247,13 +244,14 @@ namespace DevBoost.DroneDelivery.Application.Services
 
                     await _droneRepository.Update(drone);
                     await _droneItinerarioRepository.Update(droneItinerario);
-                                                           
+
                     foreach (var pedido in item.Value)
                     {
                         pedido.Drone = drone;
                         pedido.Status = EnumStatusPedido.EmTransito;
 
                         await _repositoryPedido.Update(pedido);
+                        await _repositoryPedido.UnitOfWork.Commit();
                     }
                 }
             }
@@ -275,10 +273,11 @@ namespace DevBoost.DroneDelivery.Application.Services
                 droneItinerario.InformarDataHora(DateTime.Now);
                 droneItinerario.InformarStatusDrone(EnumStatusDrone.Disponivel);
                 droneItinerario.InformarDrone(_droneRepository.GetById(droneId).Result);
-                await _droneItinerarioRepository.Insert(droneItinerario);                
+                await _droneItinerarioRepository.Insert(droneItinerario);
+                await _droneItinerarioRepository.UnitOfWork.Commit();
             }
         }
-                
+
         private double calcularDistanciaEmKilometros(double latitudeOrigem, double longitudeOrigem, double latitudeDestino, double longitudeDestino)
         {
             var origemCoord = new GeoCoordinate(latitudeOrigem, longitudeOrigem);
@@ -318,11 +317,11 @@ namespace DevBoost.DroneDelivery.Application.Services
                     longitudeOrigem = _longitudeLoja;
                 }
 
-                distanciaTotal += calcularDistanciaEmKilometros(latitudeOrigem, longitudeOrigem, (double)pedido.Latitude, (double)pedido.Longitude);
+                distanciaTotal += calcularDistanciaEmKilometros(latitudeOrigem, longitudeOrigem, (double)pedido.Cliente.Latitude, (double)pedido.Cliente.Longitude);
 
                 // origem do proximo trajeto
-                latitudeOrigem = (double)pedido.Latitude;
-                longitudeOrigem = (double)pedido.Longitude;
+                latitudeOrigem = (double)pedido.Cliente.Latitude;
+                longitudeOrigem = (double)pedido.Cliente.Longitude;
             }
 
             // retorno para loja
@@ -349,7 +348,7 @@ namespace DevBoost.DroneDelivery.Application.Services
             // calcular distancia do trajeto
             // calcular tempo total (ida e volta) do trajeto (limite maximo 35m)
             // existe um drone que atende essas condicoes
-            double distancia = calcularDistanciaEmKilometros(_latitudeLoja, _longitudeLoja, (double)pedido.Latitude, (double)pedido.Longitude);
+            double distancia = calcularDistanciaEmKilometros(_latitudeLoja, _longitudeLoja, (double)pedido.Cliente.Latitude, (double)pedido.Cliente.Longitude);
             distancia = distancia * 2;
 
             // tempo = distancia / velocidade

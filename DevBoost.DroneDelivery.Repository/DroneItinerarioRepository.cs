@@ -15,11 +15,16 @@ namespace DevBoost.DroneDelivery.Repository.Context
         {
             _context = context;
         }
+        public IUnitOfWork UnitOfWork => _context;
 
-        public async Task<bool> Delete(DroneItinerario droneItinerario)
+        
+
+        public async Task<DroneItinerario> GetDroneItinerarioPorIdDrone(int id)
         {
-            _context.DroneItinerario.Remove(droneItinerario);
-            return await _context.SaveChangesAsync() > 0;
+            return await _context.DroneItinerario
+                .AsNoTracking()
+                .Include(d => d.Drone)
+                .SingleOrDefaultAsync(d => d.DroneId == id);
         }
 
         public async Task<DroneItinerario> GetById(Guid id)
@@ -27,10 +32,10 @@ namespace DevBoost.DroneDelivery.Repository.Context
             return await _context.DroneItinerario.FindAsync(id);
         }
 
-        public async Task<bool> Insert(DroneItinerario droneItinerario)
+        public async Task Insert(DroneItinerario droneItinerario)
         {
-            _context.DroneItinerario.Add(droneItinerario);
-           return await _context.SaveChangesAsync() > 0;
+           await Task.Run(()=> _context.DroneItinerario.Add(droneItinerario));
+
         }
 
         public async Task<IList<DroneItinerario>> GetAll()
@@ -49,11 +54,9 @@ namespace DevBoost.DroneDelivery.Repository.Context
                 .SingleOrDefaultAsync(d => d.Id == id);
         }
 
-        public async Task<DroneItinerario> Update(DroneItinerario droneItinerario)
+        public async Task Update(DroneItinerario droneItinerario)
         {
-            _context.DroneItinerario.Update(droneItinerario);
-            await _context.SaveChangesAsync();
-            return droneItinerario;
+            await Task.Run(() => _context.DroneItinerario.Update(droneItinerario));
         }
 
         public void Dispose()
@@ -61,12 +64,6 @@ namespace DevBoost.DroneDelivery.Repository.Context
             _context.Dispose();
         }
 
-        public async Task<DroneItinerario> GetDroneItinerarioPorIdDrone(int id)
-        {
-            return await _context.DroneItinerario
-                .AsNoTracking()
-                .Include(d => d.Drone)
-                .SingleOrDefaultAsync(d => d.DroneId == id);
-        }
+        
     }
 }

@@ -1,9 +1,9 @@
-﻿using DevBoost.dronedelivery.DTO;
+﻿using DevBoost.dronedelivery.Application.DTO;
 using DevBoost.DroneDelivery.Application.Services;
 using DevBoost.DroneDelivery.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace DevBoost.dronedelivery.Controllers
 {
@@ -19,12 +19,12 @@ namespace DevBoost.dronedelivery.Controllers
 
         [HttpPost]
         [Route("login")]
-        public IActionResult Authenticate([FromBody] UserDTO model)
+        public async Task<IActionResult> AuthenticateAsync([FromBody] UserDTO model)
         {
-            var user = _userService.Authenticate(model.UserName, model.Password);
-
+            var user = await _userService.AuthenticateAsync(model.UserName, model.Password);
+            //HttpContext.Request.Body = null;
             if (user == null)
-                return NotFound(new { message = "Usuário ou senha inválidos" });
+                return Unauthorized(new { message = "Usuário ou senha inválidos" });
 
             return Ok(TokenService.GenerateToken(user));
         }

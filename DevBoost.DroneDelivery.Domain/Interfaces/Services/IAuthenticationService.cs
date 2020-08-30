@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace DevBoost.DroneDelivery.Domain.Interfaces.Services
 {
-    public interface IUserService
+    public interface IAuthenticationService
     {
-       Task<Usuario> AuthenticateAsync(string username, string password);
+        Task<bool> Authenticate(string username, string password);
     }
 }

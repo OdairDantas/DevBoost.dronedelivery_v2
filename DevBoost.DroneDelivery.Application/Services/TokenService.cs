@@ -2,7 +2,6 @@
 using DevBoost.DroneDelivery.Domain.Entities;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -11,7 +10,7 @@ namespace DevBoost.DroneDelivery.Application.Services
 {
     public static class TokenService
     {
-        public static string GenerateToken(User user)
+        public static string GenerateToken(Usuario user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(SecretToken.Key);
@@ -22,7 +21,7 @@ namespace DevBoost.DroneDelivery.Application.Services
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, user.Username.ToString()),
-                    new Claim(ClaimTypes.Role, user.Role.ToString())
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
                 }),
                 NotBefore = DateTime.Now,
                 Expires = DateTime.Now.AddMinutes(30),

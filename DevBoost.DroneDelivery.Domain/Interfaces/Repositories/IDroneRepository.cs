@@ -14,5 +14,6 @@ namespace DevBoost.DroneDelivery.Domain.Interfaces.Repositories
         Task<bool> Insert(Drone drone);
         Task<Drone> Update(Drone drone);
         Task<bool> Delete(Drone drone);
+        IUnitOfWork UnitOfWork { get; }
     }
 }

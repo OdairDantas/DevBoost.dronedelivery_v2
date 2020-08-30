@@ -7,8 +7,8 @@ namespace DevBoost.dronedelivery.Domain.Enum
 {
     public enum EnumStatusPedido
     {
-        AguardandoEntregador,
-        EmTransito,
-        Entregue
+        AguardandoEntregador=1,
+        EmTransito=2,
+        Entregue=3
     }
 }
