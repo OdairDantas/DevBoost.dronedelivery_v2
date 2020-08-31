@@ -24,13 +24,8 @@ namespace DevBoost.dronedelivery.Controllers
             _droneRepository = droneRepository;
             _pedidoRepository = pedidoRepository;
         }
-
-
-
-
-
-        // GET: api/Drone
-        [HttpGet, Authorize]
+        
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<SituacaoDroneDTO>>> GetDrone()
         {
 

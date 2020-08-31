@@ -24,7 +24,7 @@ namespace DevBoost.DroneDelivery.Repository
 
         public async Task<IList<Usuario>> GetAll()
         {
-            return await _context.Usuario.Include(u=>u.Cliente).ToListAsync();
+            return await _context.Usuario.Include(u=>u.Cliente).AsNoTracking().ToListAsync();
         }
 
         public async Task<Usuario> GetById(Guid id)

@@ -22,7 +22,6 @@ namespace DevBoost.dronedelivery.Controllers
         public async Task<IActionResult> AuthenticateAsync([FromBody] UserDTO model)
         {
             var user = await _userService.AuthenticateAsync(model.UserName, model.Password);
-            //HttpContext.Request.Body = null;
             if (user == null)
                 return Unauthorized(new { message = "Usuário ou senha inválidos" });
 
